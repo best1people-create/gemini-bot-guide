@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>제미니봇 명령어</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f4f5f7;
+      color: #222;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 18px;
+      padding: 24px 20px;
+      border-radius: 18px;
+      background: #fee500;
+      color: #191919;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .header p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .room-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .room-buttons button {
+      padding: 10px 13px;
+      border: 0;
+      border-radius: 12px;
+      background: #fff;
+      color: #333;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .room-buttons button.active {
+      background: #333;
+      color: #fff;
+    }
+
+    .section {
+      margin-bottom: 14px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .command {
+      padding: 7px 10px;
+      border-radius: 9px;
+      background: #f1f2f4;
+      font-size: 14px;
+    }
+
+    .notice {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header class="header">
+      <h1 id="roomTitle">제미니봇 명령어</h1>
+      <p>명령어를 누르거나 복사해서 단톡방에 입력하세요.</p>
+    </header>
+
+    <nav class="room-buttons">
+      <button data-room="alpha">알파방</button>
+      <button data-room="shootdori">슛도리</button>
+      <button data-room="staff">슛도리 운영진</button>
+      <button data-room="test">테스트방</button>
+      <button data-room="travel">여행방</button>
+    </nav>
+
+    <section class="section">
+      <h2>AI 기능</h2>
+
+      <div class="commands" id="aiCommands">
+        <span class="command">!선택지</span>
+        <span class="command">!속보</span>
+        <span class="command">!핫이슈</span>
+        <span class="command">!AI관계도</span>
+        <span class="command">!요약</span>
+        <span class="command">!지분</span>
+        <span class="command">!도파민</span>
+        <span class="command">!오늘의한마디</span>
+        <span class="command">!명예의전당</span>
+        <span class="command">!분위기</span>
+        <span class="command">!운세</span>
+        <span class="command">!타로</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>게임</h2>
+
+      <div class="commands">
+        <span class="command">!릴레이</span>
+        <span class="command">!라이어게임</span>
+        <span class="command">!마피아게임</span>
+        <span class="command">!디셉션</span>
+        <span class="command">!폭탄시작</span>
+        <span class="command">!룰렛시작</span>
+        <span class="command">!지뢰시작</span>
+        <span class="command">!눈치시작</span>
+        <span class="command">!야구시작</span>
+        <span class="command">!소설시작</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>생활·조회</h2>
+
+      <div class="commands">
+        <span class="command">!날씨 지역</span>
+        <span class="command">!뉴스</span>
+        <span class="command">!버스 정류장</span>
+        <span class="command">!지하철 역</span>
+        <span class="command">!빠른길 출발 도착</span>
+        <span class="command">!근처</span>
+        <span class="command">!오늘뭐먹지</span>
+        <span class="command">!맛집 지역</span>
+        <span class="command">!카페 지역</span>
+        <span class="command">!술집 지역</span>
+        <span class="command">!환율 달러</span>
+        <span class="command">!주식 종목</span>
+        <span class="command">!코인 종목</span>
+      </div>
+    </section>
+
+    <section class="section" id="roomSection">
+      <h2>방 전용 기능</h2>
+      <div class="commands" id="roomCommands"></div>
+    </section>
+
+    <p class="notice">
+      일부 AI 기능은 당일 오전 8시 이후 대화가 충분해야 사용할 수 있습니다.
+    </p>
+  </main>
+
+  <script>
+    var roomData = {
+      alpha: {
+        title: "알파방 명령어",
+        commands: [
+          "!랜덤지식",
+          "!팀나누기",
+          "!벌칙"
+        ]
+      },
+
+      shootdori: {
+        title: "슛도리 명령어",
+        commands: [
+          "!라인업",
+          "!스코어",
+          "!구장",
+          "!회비",
+          "!3670",
+          "!정기모임",
+          "!오늘축구",
+          "!해외축구",
+          "!경기운세",
+          "!케미",
+          "!PK"
+        ]
+      },
+
+      staff: {
+        title: "슛도리 운영진 명령어",
+        commands: [
+          "!라인업",
+          "!라인업마감",
+          "!골",
+          "!구장등록",
+          "!회비등록",
+          "!3670",
+          "!정기모임"
+        ]
+      },
+
+      test: {
+        title: "테스트방 명령어",
+        commands: [
+          "!주관식",
+          "!오엑스문제",
+          "!랜덤지식",
+          "!순서",
+          "!급식",
+          "!여행코스",
+          "!축하",
+          "!생일축하"
+        ]
+      },
+
+      travel: {
+        title: "여행방 명령어",
+        commands: [
+          "!항공권",
+          "!특가항공",
+          "!여행날씨",
+          "!현지시간",
+          "!비행시간",
+          "!수하물규정",
+          "!여행계산",
+          "!여행코스",
+          "!해외맛집",
+          "!급식"
+        ]
+      }
+    };
+
+    function getRoomFromUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var room = params.get("room");
+
+      if (!roomData[room]) {
+        return "alpha";
+      }
+
+      return room;
+    }
+
+    function showRoom(room) {
+      var data = roomData[room];
+      var title = document.getElementById("roomTitle");
+      var commandBox = document.getElementById("roomCommands");
+      var buttons = document.querySelectorAll("[data-room]");
+
+      title.textContent = data.title;
+      commandBox.innerHTML = "";
+
+      for (var i = 0; i < data.commands.length; i++) {
+        var item = document.createElement("span");
+        item.className = "command";
+        item.textContent = data.commands[i];
+        commandBox.appendChild(item);
+      }
+
+      for (var j = 0; j < buttons.length; j++) {
+        if (buttons[j].getAttribute("data-room") === room) {
+          buttons[j].className = "active";
+        } else {
+          buttons[j].className = "";
+        }
+      }
+
+      window.history.replaceState(
+        null,
+        "",
+        "?room=" + encodeURIComponent(room)
+      );
+    }
+
+    var roomButtons = document.querySelectorAll("[data-room]");
+
+    for (var i = 0; i < roomButtons.length; i++) {
+      roomButtons[i].onclick = function() {
+        showRoom(this.getAttribute("data-room"));
+      };
+    }
+
+    showRoom(getRoomFromUrl());
+  </script>
+</body>
+</html>
