@@ -2,307 +2,216 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fee500">
   <title>제미니봇 명령어</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #f4f5f7;
-      color: #222;
-      font-family: Arial, "Malgun Gothic", sans-serif;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    .header {
-      margin-bottom: 18px;
-      padding: 24px 20px;
-      border-radius: 18px;
-      background: #fee500;
-      color: #191919;
-    }
-
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: 26px;
-    }
-
-    .header p {
-      margin: 0;
-      line-height: 1.5;
-    }
-
-    .room-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .room-buttons button {
-      padding: 10px 13px;
-      border: 0;
-      border-radius: 12px;
-      background: #fff;
-      color: #333;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .room-buttons button.active {
-      background: #333;
-      color: #fff;
-    }
-
-    .section {
-      margin-bottom: 14px;
-      padding: 18px;
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    .section h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
-
-    .commands {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .command {
-      padding: 7px 10px;
-      border-radius: 9px;
-      background: #f1f2f4;
-      font-size: 14px;
-    }
-
-    .notice {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.5;
-    }
+    * { box-sizing: border-box; }
+    :root { --yellow:#fee500; --ink:#191919; --muted:#73777f; --card:#fff; --bg:#f3f4f6; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Arial,"Malgun Gothic",sans-serif; }
+    button { font:inherit; }
+    .wrap { width:min(720px,100%); margin:0 auto; padding:18px 16px 42px; }
+    .hero { position:relative; overflow:hidden; padding:25px 22px; border-radius:24px; background:var(--yellow); box-shadow:0 12px 30px rgba(65,55,0,.13); }
+    .hero:after { content:""; position:absolute; right:-35px; top:-45px; width:145px; height:145px; border-radius:50%; background:rgba(255,255,255,.34); }
+    .eyebrow { margin:0 0 7px; font-size:13px; font-weight:800; letter-spacing:.08em; }
+    h1 { position:relative; z-index:1; margin:0; font-size:29px; line-height:1.2; }
+    .hero p { position:relative; z-index:1; margin:10px 0 0; font-size:14px; line-height:1.55; }
+    .search { width:100%; margin:15px 0 6px; padding:14px 16px; border:1px solid #e2e4e8; border-radius:15px; outline:none; background:#fff; font-size:15px; box-shadow:0 5px 18px rgba(0,0,0,.05); }
+    .search:focus { border-color:#2d2d2d; box-shadow:0 0 0 3px rgba(254,229,0,.55); }
+    .section { margin-top:14px; padding:17px; border-radius:20px; background:var(--card); box-shadow:0 5px 18px rgba(0,0,0,.055); animation:rise .4s ease both; }
+    .section h2 { margin:0 0 12px; font-size:17px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .cmd { min-height:47px; padding:11px 10px; border:1px solid #eceef1; border-radius:13px; background:#fafafa; color:#252525; font-weight:700; text-align:left; cursor:pointer; transition:transform .16s ease,background .16s ease,box-shadow .16s ease; }
+    .cmd:active { transform:scale(.96); background:var(--yellow); }
+    .empty { display:none; padding:30px 10px; color:var(--muted); text-align:center; }
+    .foot { margin:18px 4px 0; color:var(--muted); font-size:12px; line-height:1.55; text-align:center; }
+    .shade { position:fixed; inset:0; z-index:20; visibility:hidden; opacity:0; background:rgba(0,0,0,.48); transition:.22s ease; }
+    .shade.open { visibility:visible; opacity:1; }
+    .sheet { position:absolute; left:50%; bottom:0; width:min(720px,100%); padding:10px 18px calc(22px + env(safe-area-inset-bottom)); border-radius:25px 25px 0 0; background:#fff; transform:translate(-50%,105%); transition:transform .28s cubic-bezier(.2,.8,.2,1); }
+    .shade.open .sheet { transform:translate(-50%,0); }
+    .handle { width:42px; height:5px; margin:0 auto 16px; border-radius:9px; background:#d9dce1; }
+    .tag { display:inline-block; padding:5px 9px; border-radius:99px; background:#fff7b8; font-size:12px; font-weight:800; }
+    .sheet h3 { margin:12px 0 7px; font-size:24px; }
+    .desc { margin:0 0 17px; color:#555b63; line-height:1.55; }
+    .label { margin:13px 0 7px; color:#777c84; font-size:12px; font-weight:800; }
+    .code { padding:13px 14px; border-radius:13px; background:#f3f4f6; font-family:Consolas,monospace; font-size:14px; line-height:1.5; white-space:pre-wrap; }
+    .actions { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:17px; }
+    .copy,.close { padding:13px 16px; border:0; border-radius:13px; cursor:pointer; font-weight:800; }
+    .copy { background:var(--yellow); color:#191919; }
+    .close { background:#eceef1; color:#333; }
+    .toast { position:fixed; left:50%; bottom:24px; z-index:40; opacity:0; padding:10px 15px; border-radius:99px; background:#222; color:#fff; transform:translate(-50%,20px); transition:.2s; pointer-events:none; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @media (min-width:560px) { .grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   </style>
 </head>
-
 <body>
-  <main class="container">
-    <header class="header">
-      <h1 id="roomTitle">제미니봇 명령어</h1>
-      <p>명령어를 누르거나 복사해서 단톡방에 입력하세요.</p>
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">GEMINI BOT GUIDE</p>
+      <h1 id="title">명령어 안내</h1>
+      <p>명령어를 누르면 사용법과 입력 예시를 볼 수 있어요.</p>
     </header>
-
-    <nav class="room-buttons">
-      <button data-room="alpha">알파방</button>
-      <button data-room="shootdori">슛도리</button>
-      <button data-room="staff">슛도리 운영진</button>
-      <button data-room="test">테스트방</button>
-      <button data-room="travel">여행방</button>
-    </nav>
-
-    <section class="section">
-      <h2>AI 기능</h2>
-
-      <div class="commands" id="aiCommands">
-        <span class="command">!선택지</span>
-        <span class="command">!속보</span>
-        <span class="command">!핫이슈</span>
-        <span class="command">!AI관계도</span>
-        <span class="command">!요약</span>
-        <span class="command">!지분</span>
-        <span class="command">!도파민</span>
-        <span class="command">!오늘의한마디</span>
-        <span class="command">!명예의전당</span>
-        <span class="command">!분위기</span>
-        <span class="command">!운세</span>
-        <span class="command">!타로</span>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>게임</h2>
-
-      <div class="commands">
-        <span class="command">!릴레이</span>
-        <span class="command">!라이어게임</span>
-        <span class="command">!마피아게임</span>
-        <span class="command">!디셉션</span>
-        <span class="command">!폭탄시작</span>
-        <span class="command">!룰렛시작</span>
-        <span class="command">!지뢰시작</span>
-        <span class="command">!눈치시작</span>
-        <span class="command">!야구시작</span>
-        <span class="command">!소설시작</span>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>생활·조회</h2>
-
-      <div class="commands">
-        <span class="command">!날씨 지역</span>
-        <span class="command">!뉴스</span>
-        <span class="command">!버스 정류장</span>
-        <span class="command">!지하철 역</span>
-        <span class="command">!빠른길 출발 도착</span>
-        <span class="command">!근처</span>
-        <span class="command">!오늘뭐먹지</span>
-        <span class="command">!맛집 지역</span>
-        <span class="command">!카페 지역</span>
-        <span class="command">!술집 지역</span>
-        <span class="command">!환율 달러</span>
-        <span class="command">!주식 종목</span>
-        <span class="command">!코인 종목</span>
-      </div>
-    </section>
-
-    <section class="section" id="roomSection">
-      <h2>방 전용 기능</h2>
-      <div class="commands" id="roomCommands"></div>
-    </section>
-
-    <p class="notice">
-      일부 AI 기능은 당일 오전 8시 이후 대화가 충분해야 사용할 수 있습니다.
-    </p>
+    <input id="search" class="search" type="search" placeholder="명령어 검색 (예: 날씨, 선택지)" aria-label="명령어 검색">
+    <div id="sections"></div>
+    <div id="empty" class="empty">검색 결과가 없습니다.</div>
+    <p class="foot">AI 대화 분석 기능은 오전 8시 이후 대화가 충분해야 사용할 수 있습니다.</p>
   </main>
 
+  <div id="shade" class="shade" role="dialog" aria-modal="true" aria-hidden="true">
+    <section class="sheet">
+      <div class="handle"></div>
+      <span id="category" class="tag"></span>
+      <h3 id="commandTitle"></h3>
+      <p id="description" class="desc"></p>
+      <p class="label">사용법</p><div id="usage" class="code"></div>
+      <p class="label">입력 예시</p><div id="example" class="code"></div>
+      <div class="actions"><button id="copy" class="copy">예시 복사</button><button id="close" class="close">닫기</button></div>
+    </section>
+  </div>
+  <div id="toast" class="toast">복사했습니다</div>
+
   <script>
-    var roomData = {
-      alpha: {
-        title: "알파방 명령어",
-        commands: [
-          "!랜덤지식",
-          "!팀나누기",
-          "!벌칙"
-        ]
-      },
-
-      shootdori: {
-        title: "슛도리 명령어",
-        commands: [
-          "!라인업",
-          "!스코어",
-          "!구장",
-          "!회비",
-          "!3670",
-          "!정기모임",
-          "!오늘축구",
-          "!해외축구",
-          "!경기운세",
-          "!케미",
-          "!PK"
-        ]
-      },
-
-      staff: {
-        title: "슛도리 운영진 명령어",
-        commands: [
-          "!라인업",
-          "!라인업마감",
-          "!골",
-          "!구장등록",
-          "!회비등록",
-          "!3670",
-          "!정기모임"
-        ]
-      },
-
-      test: {
-        title: "테스트방 명령어",
-        commands: [
-          "!주관식",
-          "!오엑스문제",
-          "!랜덤지식",
-          "!순서",
-          "!급식",
-          "!여행코스",
-          "!축하",
-          "!생일축하"
-        ]
-      },
-
-      travel: {
-        title: "여행방 명령어",
-        commands: [
-          "!항공권",
-          "!특가항공",
-          "!여행날씨",
-          "!현지시간",
-          "!비행시간",
-          "!수하물규정",
-          "!여행계산",
-          "!여행코스",
-          "!해외맛집",
-          "!급식"
-        ]
-      }
+    var info = {
+      "!선택지":["AI 상황극 선택지를 만들고 번호별 엔딩을 공개해요.","!선택지","!선택지"],
+      "!속보":["최근 대화를 짧고 재치 있는 뉴스처럼 정리해요.","!속보","!속보"],
+      "!핫이슈":["오늘 오전 8시 이후 화제 4개를 보여줘요.","!핫이슈","!핫이슈"],
+      "!AI관계도":["오늘 실제 대화 흐름에서 확인되는 관계를 정리해요.","!AI관계도","!AI관계도"],
+      "!요약":["오늘 오전 8시 이후 핵심 대화를 요약해요.","!요약","!요약"],
+      "!지분":["오늘 실제 메시지 수로 채팅 지분을 계산해요.","!지분","!지분"],
+      "!도파민":["오늘 대화량과 분위기로 도파민 지수를 계산해요.","!도파민","!도파민"],
+      "!오늘의한마디":["오늘 실제 발언 중 한마디를 골라줘요.","!오늘의한마디","!오늘의한마디"],
+      "!명예의전당":["오늘 실제 대화를 근거로 재미있는 상을 뽑아요.","!명예의전당","!명예의전당"],
+      "!분위기":["최근 대화로 현재 방 분위기를 분석해요.","!분위기","!분위기"],
+      "!운세":["오늘의 운세를 AI가 알려줘요.","!운세","!운세"],
+      "!타로":["AI 타로 리딩을 시작해요.","!타로","!타로"],
+      "!별명":["대상에게 어울리는 별명을 추천해요.","!별명 [이름]","!별명 따구"],
+      "!mbti":["대화 분위기를 바탕으로 MBTI 느낌을 분석해요.","!mbti","!mbti"],
+      "!릴레이":["이어말하기 게임을 열어요.","!릴레이","!릴레이"],
+      "!라이어게임":["라이어게임 참가방을 열어요.","!라이어게임 [모드]","!라이어게임 바보모드"],
+      "!마피아게임":["마피아게임을 시작할 준비를 해요.","!마피아게임","!마피아게임"],
+      "!디셉션":["단서를 보고 범인을 찾는 추리게임이에요.","!디셉션","!디셉션"],
+      "!폭탄시작":["순서대로 폭탄을 넘기는 게임을 시작해요.","!폭탄시작","!폭탄시작"],
+      "!룰렛시작":["러시안룰렛 게임을 시작해요.","!룰렛시작","!룰렛시작"],
+      "!지뢰시작":["숫자로 지뢰를 피하는 게임을 시작해요.","!지뢰시작","!지뢰시작"],
+      "!눈치시작":["겹치지 않게 숫자를 외치는 눈치게임이에요.","!눈치시작","!눈치시작"],
+      "!야구시작":["세 자리 숫자야구 게임을 시작해요.","!야구시작","!야구시작"],
+      "!소설시작":["단톡방 멤버들이 이어 쓰는 소설을 시작해요.","!소설시작","!소설시작"],
+      "!날씨":["지역의 현재 날씨를 확인해요.","!날씨 [지역]","!날씨 서울"],
+      "!주말날씨":["지역의 주말 예보를 확인해요.","!주말날씨 [지역]","!주말날씨 인천"],
+      "!뉴스":["최신 주요 뉴스를 확인해요.","!뉴스","!뉴스"],
+      "!버스":["정류장이나 노선의 버스 정보를 찾아요.","!버스 [정류장/노선]","!버스 서울역"],
+      "!지하철":["지하철역 정보를 확인해요.","!지하철 [역]","!지하철 강남역"],
+      "!빠른길":["출발지에서 도착지까지 빠른 길을 찾아요.","!빠른길 [출발] [도착]","!빠른길 서울역 강남역"],
+      "!근처":["현재 위치를 기준으로 주변 장소를 찾아요.","!근처 [종류]","!근처 맛집"],
+      "!오늘뭐먹지":["조건에 맞는 메뉴를 추천해요.","!오늘뭐먹지 [조건]","!오늘뭐먹지 매운 거"],
+      "!맛집":["지역 맛집을 찾아요.","!맛집 [지역]","!맛집 홍대"],
+      "!카페":["지역 카페를 찾아요.","!카페 [지역]","!카페 성수"],
+      "!술집":["지역 술집을 찾아요.","!술집 [지역]","!술집 을지로"],
+      "!환율":["통화의 원화 환율을 확인해요.","!환율 [통화/국가]","!환율 달러"],
+      "!주식":["주식 종목 정보를 조회해요.","!주식 [종목]","!주식 삼성전자"],
+      "!코인":["가상자산 시세를 조회해요.","!코인 [종목]","!코인 비트코인"],
+      "!랜덤지식":["랜덤 상식 문제나 지식을 보여줘요.","!랜덤지식","!랜덤지식"],
+      "!팀나누기":["입력한 사람들을 무작위 팀으로 나눠요.","!팀나누기 [이름,이름]","!팀나누기 철수,영희,민수,지수"],
+      "!벌칙":["게임에 쓸 벌칙을 정해요.","!벌칙 [내용]","!벌칙 웃긴 포즈"],
+      "!라인업":["현재 축구 라인업을 확인하거나 등록해요.","!라인업","!라인업"],
+      "!스코어":["현재 경기 기록과 점수를 확인해요.","!스코어","!스코어"],
+      "!구장":["등록된 구장 일정을 확인해요.","!구장","!구장"],
+      "!회비":["등록된 회비 정보를 확인해요.","!회비","!회비"],
+      "!3670":["3670 참석 모집이나 현황을 확인해요.","!3670","!3670"],
+      "!정기모임":["이번 주 정기모임 상태를 확인해요.","!정기모임","!정기모임"],
+      "!오늘축구":["오늘 주요 축구 일정을 확인해요.","!오늘축구","!오늘축구"],
+      "!해외축구":["해외축구 일정과 정보를 확인해요.","!해외축구","!해외축구"],
+      "!경기운세":["슛도리 경기 운세를 AI로 봐요.","!경기운세","!경기운세"],
+      "!케미":["두 사람의 축구 케미를 분석해요.","!케미 [이름1] [이름2]","!케미 철수 영희"],
+      "!PK":["PK 게임을 시작해요.","!PK","!PK"],
+      "!라인업마감":["운영진이 라인업 등록을 마감해요.","!라인업마감","!라인업마감"],
+      "!골":["운영진이 득점 기록을 등록해요.","!골 [팀] [쿼터] [이름]","!골 핑크 1쿼터 철수"],
+      "!구장등록":["운영진이 구장 일정을 등록해요.","!구장등록 [일정]","!구장등록 7/20 손기정 16:00-18:00"],
+      "!회비등록":["운영진이 회비 기간과 금액을 등록해요.","!회비등록 [기간] / [금액]","!회비등록 7월 / 2만원"],
+      "!주관식":["분야와 난이도로 주관식 문제를 만들어요.","!주관식 [분야] [난이도]","!주관식 한국사 보통"],
+      "!오엑스문제":["분야와 난이도로 OX 문제를 만들어요.","!오엑스문제 [분야] [난이도]","!오엑스문제 과학 쉬움"],
+      "!순서":["입력한 이름들의 순서를 정해요.","!순서 [이름들]","!순서 철수 영희 민수"],
+      "!급식":["학교 급식표를 확인해요.","!급식 [일수]","!급식 5"],
+      "!여행코스":["도시와 기간에 맞는 여행 일정을 만들어요.","!여행코스 [도시] [기간]","!여행코스 오사카 3박4일"],
+      "!항공권":["도시 또는 출발·도착지로 항공권을 검색해요.","!항공권 [출발지] [도착지]","!항공권 인천 오사카"],
+      "!특가항공":["목적지의 특가 항공 검색 방법을 안내해요.","!특가항공 [도시]","!특가항공 다낭"],
+      "!여행날씨":["여행지 날씨를 확인해요.","!여행날씨 [도시]","!여행날씨 도쿄"],
+      "!현지시간":["도시의 현재 현지 시간을 알려줘요.","!현지시간 [도시]","!현지시간 파리"],
+      "!비행시간":["목적지까지 예상 비행시간을 알려줘요.","!비행시간 [도시]","!비행시간 방콕"],
+      "!수하물규정":["항공사 수하물 확인 방법을 안내해요.","!수하물규정 [항공사]","!수하물규정 대한항공"],
+      "!여행계산":["기간과 예산으로 여행 비용을 계산해요.","!여행계산 [기간] [예산]","!여행계산 3박4일 100만원"],
+      "!해외맛집":["해외 도시의 맛집을 찾아요.","!해외맛집 [도시/음식]","!해외맛집 오사카 라멘"]
     };
 
-    function getRoomFromUrl() {
-      var params = new URLSearchParams(window.location.search);
-      var room = params.get("room");
+    var common = {
+      "생활·조회":["!날씨","!주말날씨","!뉴스","!버스","!지하철","!빠른길","!근처","!오늘뭐먹지","!맛집","!카페","!술집","!환율","!주식","!코인"]
+    };
+    var ai = ["!선택지","!속보","!핫이슈","!AI관계도","!요약","!지분","!도파민","!오늘의한마디","!명예의전당","!분위기","!운세","!타로","!별명","!mbti"];
+    var games = ["!릴레이","!라이어게임","!마피아게임","!디셉션","!폭탄시작","!룰렛시작","!지뢰시작","!눈치시작","!야구시작","!소설시작"];
+    var rooms = {
+      alpha:{ title:"알파방 명령어", categories:{ "AI 기능":ai, "게임":games, "알파방 기능":["!랜덤지식","!팀나누기","!벌칙"], "생활·조회":common["생활·조회"] } },
+      shootdori:{ title:"슛도리 명령어", categories:{ "AI 기능":ai, "축구":["!라인업","!스코어","!구장","!회비","!3670","!정기모임","!오늘축구","!해외축구","!경기운세","!케미","!PK"], "게임":games, "생활·조회":common["생활·조회"] } },
+      staff:{ title:"슛도리 운영진 명령어", categories:{ "AI 기능":ai, "운영":["!라인업","!라인업마감","!골","!구장등록","!회비등록","!3670","!정기모임"], "게임":games, "생활·조회":common["생활·조회"] } },
+      test:{ title:"테스트방 명령어", categories:{ "AI 기능":ai, "테스트":["!주관식","!오엑스문제","!랜덤지식","!순서","!급식","!여행코스"], "게임":games, "생활·조회":common["생활·조회"] } },
+      travel:{ title:"여행방 명령어", categories:{ "여행":["!항공권","!특가항공","!여행날씨","!현지시간","!비행시간","!수하물규정","!여행계산","!여행코스","!해외맛집","!급식"], "생활·조회":common["생활·조회"] } }
+    };
 
-      if (!roomData[room]) {
-        return "alpha";
-      }
+    var params = new URLSearchParams(location.search);
+    var roomKey = rooms[params.get("room")] ? params.get("room") : "alpha";
+    var room = rooms[roomKey];
+    var sections = document.getElementById("sections");
+    var search = document.getElementById("search");
+    var shade = document.getElementById("shade");
+    var selectedExample = "";
+    document.getElementById("title").textContent = room.title;
 
-      return room;
-    }
-
-    function showRoom(room) {
-      var data = roomData[room];
-      var title = document.getElementById("roomTitle");
-      var commandBox = document.getElementById("roomCommands");
-      var buttons = document.querySelectorAll("[data-room]");
-
-      title.textContent = data.title;
-      commandBox.innerHTML = "";
-
-      for (var i = 0; i < data.commands.length; i++) {
-        var item = document.createElement("span");
-        item.className = "command";
-        item.textContent = data.commands[i];
-        commandBox.appendChild(item);
-      }
-
-      for (var j = 0; j < buttons.length; j++) {
-        if (buttons[j].getAttribute("data-room") === room) {
-          buttons[j].className = "active";
-        } else {
-          buttons[j].className = "";
+    function render(query) {
+      sections.innerHTML = "";
+      var count = 0;
+      query = String(query || "").trim().toLowerCase();
+      for (var category in room.categories) {
+        if (!room.categories.hasOwnProperty(category)) continue;
+        var commands = room.categories[category];
+        var filtered = [];
+        for (var i=0;i<commands.length;i++) {
+          var detail = info[commands[i]] || ["명령어를 실행합니다.",commands[i],commands[i]];
+          var haystack = (commands[i]+" "+detail.join(" ")).toLowerCase();
+          if (!query || haystack.indexOf(query)!==-1) filtered.push(commands[i]);
         }
+        if (!filtered.length) continue;
+        var box=document.createElement("section"); box.className="section";
+        var heading=document.createElement("h2"); heading.textContent=category; box.appendChild(heading);
+        var grid=document.createElement("div"); grid.className="grid";
+        for (var j=0;j<filtered.length;j++) {
+          var button=document.createElement("button"); button.className="cmd"; button.textContent=filtered[j]; button.setAttribute("data-command",filtered[j]); grid.appendChild(button); count++;
+        }
+        box.appendChild(grid); sections.appendChild(box);
       }
-
-      window.history.replaceState(
-        null,
-        "",
-        "?room=" + encodeURIComponent(room)
-      );
+      document.getElementById("empty").style.display=count?"none":"block";
     }
 
-    var roomButtons = document.querySelectorAll("[data-room]");
-
-    for (var i = 0; i < roomButtons.length; i++) {
-      roomButtons[i].onclick = function() {
-        showRoom(this.getAttribute("data-room"));
-      };
+    function openCommand(command) {
+      var detail=info[command] || ["명령어를 실행합니다.",command,command];
+      selectedExample=detail[2];
+      document.getElementById("category").textContent=room.title;
+      document.getElementById("commandTitle").textContent=command;
+      document.getElementById("description").textContent=detail[0];
+      document.getElementById("usage").textContent=detail[1];
+      document.getElementById("example").textContent=detail[2];
+      shade.className="shade open"; shade.setAttribute("aria-hidden","false");
     }
-
-    showRoom(getRoomFromUrl());
+    function closeSheet(){ shade.className="shade"; shade.setAttribute("aria-hidden","true"); }
+    sections.onclick=function(e){ var button=e.target.closest("[data-command]"); if(button) openCommand(button.getAttribute("data-command")); };
+    search.oninput=function(){ render(this.value); };
+    document.getElementById("close").onclick=closeSheet;
+    shade.onclick=function(e){ if(e.target===shade) closeSheet(); };
+    document.getElementById("copy").onclick=function(){
+      if(navigator.clipboard){ navigator.clipboard.writeText(selectedExample); }
+      var toast=document.getElementById("toast"); toast.className="toast show"; setTimeout(function(){toast.className="toast";},1300);
+    };
+    document.onkeydown=function(e){ if(e.key==="Escape") closeSheet(); };
+    render("");
   </script>
 </body>
 </html>
