@@ -35,6 +35,7 @@
     .desc { margin:0 0 17px; color:#555b63; line-height:1.55; }
     .label { margin:13px 0 7px; color:#777c84; font-size:12px; font-weight:800; }
     .code { padding:13px 14px; border-radius:13px; background:#f3f4f6; font-family:Consolas,monospace; font-size:14px; line-height:1.5; white-space:pre-wrap; }
+    .preview { border:1px solid #f0dc2f; background:linear-gradient(145deg,#fffceb,#fff7b8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); animation:previewIn .28s ease both; }
     .actions { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:17px; }
     .copy,.close { padding:13px 16px; border:0; border-radius:13px; cursor:pointer; font-weight:800; }
     .copy { background:var(--yellow); color:#191919; }
@@ -42,6 +43,7 @@
     .toast { position:fixed; left:50%; bottom:24px; z-index:40; opacity:0; padding:10px 15px; border-radius:99px; background:#222; color:#fff; transform:translate(-50%,20px); transition:.2s; pointer-events:none; }
     .toast.show { opacity:1; transform:translate(-50%,0); }
     @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @keyframes previewIn { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
     @media (min-width:560px) { .grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   </style>
 </head>
@@ -66,6 +68,7 @@
       <p id="description" class="desc"></p>
       <p class="label">사용법</p><div id="usage" class="code"></div>
       <p class="label">입력 예시</p><div id="example" class="code"></div>
+      <p class="label">카톡 출력 미리보기</p><div id="preview" class="code preview"></div>
       <div class="actions"><button id="copy" class="copy">예시 복사</button><button id="close" class="close">닫기</button></div>
     </section>
   </div>
@@ -144,6 +147,30 @@
       "!해외맛집":["해외 도시의 맛집을 찾아요.","!해외맛집 [도시/음식]","!해외맛집 오사카 라멘"]
     };
 
+    var previews = {
+      "!선택지":"[알파방 AI 선택지]\n\n현재 시간 : 목요일 밤 10시\n\n나는 귀가를 선언했지만 단톡방에는 갑자기 2차 투표가 시작됐다.\n\n1. 조용히 사라진다\n2. 한 잔만 외친다\n3. 편의점으로 피신한다\n4. 이미 택시 안이라고 우긴다\n\n(번호만 입력해주세요.)",
+      "!속보":"[알파방 속보]\n귀가 선언 3분 만에 안주 추가 논의\n집에 간다던 멤버들이 메뉴 사진 앞에서 다시 흔들렸다.\n현재 단톡방은 2차 장소를 두고 조용한 접전 중이다.",
+      "!핫이슈":"[알파방 HOT ISSUE]\n1위 주말 모임 시간 조율\n2위 저녁 메뉴 선정\n3위 귀가와 2차 사이의 고민\n4위 이동 방법 논의",
+      "!AI관계도":"[알파방 AI 관계도]\n철수 ↔ 영희 : 모임 시간을 주고받은 조합\n민수 ↔ 지수 : 메뉴 질문과 답변이 이어진 조합",
+      "!요약":"[알파방 오늘 대화 요약]\n주말 모임은 저녁 시간대로 의견이 모였다.\n장소는 접근성이 좋은 쪽으로 다시 확인하기로 했다.\n저녁 메뉴와 이동 방법 이야기가 주요 화제였다.",
+      "!지분":"[알파방 오늘 채팅 지분]\n1위 철수 31% (28건)\n2위 영희 24% (22건)\n3위 민수 18% (16건)",
+      "!도파민":"[알파방 도파민 지수]\n도파민 지수: 82점\n참여 인원과 대화 왕복이 활발했다.\n웃음 표현과 여러 화제가 빠르게 이어졌다.",
+      "!오늘의한마디":"[알파방 오늘의 한마디]\n철수 : 한 잔만 하고 진짜 간다\n오늘 가장 신뢰하기 어려워서 선정됐습니다.",
+      "!명예의전당":"[알파방 오늘의 명예의 전당]\n귀가 선언 번복상 : 철수 - 한 잔만 외치고 메뉴판을 다시 펼침\n일정 조율상 : 영희 - 모임 시간을 끝까지 정리함",
+      "!분위기":"[현재 단톡방 분위기]\n대화 텐션은 활발한 편입니다.\n모임과 메뉴 이야기가 자연스럽게 이어지고 있어요.",
+      "!날씨":"[서울 날씨]\n현재 24°C, 맑음\n체감 25°C · 습도 58%",
+      "!뉴스":"[오늘의 주요 뉴스]\n주요 소식을 짧게 정리해서 보여줍니다.",
+      "!타로":"[오늘의 타로]\n선택한 카드를 바탕으로 짧은 리딩을 보여줍니다.",
+      "!팀나누기":"[팀 나누기]\nA팀: 철수, 민수\nB팀: 영희, 지수",
+      "!스코어":"[슛도리 경기 기록]\n핑크 3 : 2 블루\n1쿼터 - 철수 (핑크)",
+      "!항공권":"[항공권 검색]\n인천 → 오사카\n선택한 날짜의 항공편 검색 결과를 보여줍니다."
+    };
+
+    function getPreview(command, detail) {
+      if (previews[command]) return previews[command];
+      return "[" + command.substring(1) + " 결과 미리보기]\n" + detail[0] + "\n실제 결과는 입력값과 현재 데이터에 따라 달라집니다.";
+    }
+
     var common = {
       "생활·조회":["!날씨","!주말날씨","!뉴스","!버스","!지하철","!빠른길","!근처","!오늘뭐먹지","!맛집","!카페","!술집","!환율","!주식","!코인"]
     };
@@ -199,6 +226,7 @@
       document.getElementById("description").textContent=detail[0];
       document.getElementById("usage").textContent=detail[1];
       document.getElementById("example").textContent=detail[2];
+      document.getElementById("preview").textContent=getPreview(command,detail);
       shade.className="shade open"; shade.setAttribute("aria-hidden","false");
     }
     function closeSheet(){ shade.className="shade"; shade.setAttribute("aria-hidden","true"); }
